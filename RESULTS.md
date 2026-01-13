@@ -5,7 +5,7 @@
 - Random complex symmetric matrices
 - Random complex displacement vectors (batch)
 - Realistic detection patterns (geometric distribution, 0-5 photons)
-- Multiple trials per configuration for statistical robustness
+- Multiple trials per configuration for statistical robustness (to some degree xd)
 
 ---
 

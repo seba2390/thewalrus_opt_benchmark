@@ -25,40 +25,33 @@ from thewalrus.loop_hafnian_batch import add_batch_edges_odd, add_batch_edges_ev
 # OPTIMIZATION 1: Powertrace-cached versions of f_loop and f_loop_odd
 # =============================================================================
 
-@numba.jit(nopython=True, cache=True) # type: ignore
-def powertrace(H: np.ndarray, n: int) -> np.ndarray:
-    """
-    Calculate the powertraces of the matrix H up to power n-1.
-
-    Copied from thewalrus.charpoly for numba compatibility.
+@numba.jit(nopython=True, cache=True)
+def powertrace(H, n):  # pragma: no cover
+    """Calculates the powertraces of the matrix ``H`` up to power ``n-1``.
 
     Args:
-        H: square matrix
-        n: required order
+        H (array): square matrix
+        n (int): required order
 
     Returns:
-        array: list of power traces from 0 to n-1
+        (array): list of power traces from ``0`` to ``n-1``
     """
     m = len(H)
     min_val = min(n, m)
-    pow_traces = np.zeros(n, dtype=H.dtype)
-    pow_traces[0] = m
-    if n > 1:
-        pow_traces[1] = np.trace(H)
+    pow_traces = [m, np.trace(H)]
     A = H
-    for i in range(min_val - 2):
-        A = A @ H # type: ignore
-        pow_traces[i + 2] = np.trace(A)
+    for _ in range(min_val - 2):
+        A = A @ H
+        pow_traces.append(np.trace(A))
     if n <= m:
-        return pow_traces
-    # Use characteristic polynomial for higher powers
-    char_pol = charpoly.charpoly(H.copy()) # type: ignore
-    for i in range(min_val, n):
+        return np.array(pow_traces, dtype=H.dtype)
+    char_pol = charpoly.charpoly(H)
+    for _ in range(min_val, n):
         ssum = 0
         for k in range(m):
-            ssum -= char_pol[k] * pow_traces[i - k - 1] # type: ignore
-        pow_traces[i] = ssum
-    return pow_traces
+            ssum -= char_pol[k] * pow_traces[-k - 1]
+        pow_traces.append(ssum)
+    return np.array(pow_traces, dtype=H.dtype)
 
 
 @numba.jit(nopython=True, cache=True) # type: ignore

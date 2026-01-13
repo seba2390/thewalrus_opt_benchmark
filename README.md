@@ -8,9 +8,10 @@ Eliminate redundant `powertrace(AX)` computations in `loop_hafnian_batch_gamma` 
 
 | File | Description |
 |------|-------------|
-| `loop_hafnian_optimized.py` | Optimized implementation (drop-in replacement) |
-| `benchmark_hafnian_isolated.py` | Benchmark script comparing original vs optimized |
-| `README.md` | Detailed proposal for thewalrus PR |
+| `optimized/_hafnian.py` | Modified `f_loop` and `f_loop_odd` accepting pre-computed powertrace |
+| `optimized/loop_hafnian_batch.py` | Optimized batch hafnian functions |
+| `optimized/loop_hafnian_batch_gamma.py` | Optimized batch gamma functions with hoisted powertrace |
+| `benchmark_optimization.py` | Benchmark script comparing original vs optimized |
 
 ## Quick Start
 
@@ -19,7 +20,7 @@ Eliminate redundant `powertrace(AX)` computations in `loop_hafnian_batch_gamma` 
 python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 # Run benchmark
-.venv/bin/python benchmark_hafnian_isolated.py
+.venv/bin/python benchmark_optimization.py
 ```
 
 ## The Problem
@@ -33,8 +34,6 @@ for k in prange(n_d):        # Loop over displacement vectors
     f_loop(A, ...)           # Calls powertrace(AX) internally
     f_loop_odd(A, ...)       # Calls powertrace(AX) again
 ```
-
-The powertrace computation is O(n²) per call and dominates runtime for large matrices.
 
 ## The Fix
 
@@ -54,4 +53,4 @@ for k in prange(n_d):
 
 ## Benchmark Results
 
-See [RESULTS.md](RESULTS.md) for detailed performance benchmarks showing **3-6x speedup** for typical use cases.
+See [RESULTS.md](RESULTS.md) for detailed performance benchmarks.

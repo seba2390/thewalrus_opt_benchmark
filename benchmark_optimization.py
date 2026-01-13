@@ -19,7 +19,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from thewalrus.loop_hafnian_batch_gamma import loop_hafnian_batch_gamma
-from loop_hafnian_optimized import loop_hafnian_batch_gamma_optimized
+from optimized.loop_hafnian_batch_gamma import loop_hafnian_batch_gamma as loop_hafnian_batch_gamma_optimized
 
 
 class BenchmarkResult(TypedDict):

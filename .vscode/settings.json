@@ -1,0 +1,7 @@
+{
+    // Use the .venv in the workspace root as the default Python interpreter
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+
+    // Optional: tell tools like Pyright/BasedPyright where virtual envs live
+    "python.venvPath": "${workspaceFolder}"
+}

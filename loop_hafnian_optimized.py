@@ -76,13 +76,9 @@ def f_loop_with_powtrace(AX_S: np.ndarray, XD_S: np.ndarray, D_S: np.ndarray,
     count = 0
     comb = np.zeros((2, n // 2 + 1), dtype=np.complex128)
     comb[0, 0] = 1
-
-    # Use pre-computed powertrace instead of computing it
-    XD_S_local = XD_S.copy()
-
     for i in range(1, n // 2 + 1):
-        factor = powtrace_arr[i] / (2 * i) + (XD_S_local @ D_S) / 2
-        XD_S_local = XD_S_local @ AX_S
+        factor = powtrace_arr[i] / (2 * i) + (XD_S @ D_S) / 2
+        XD_S = XD_S @ AX_S
         powfactor = 1.0
         count = 1 - count
         comb[count, :] = comb[1 - count, :]
@@ -119,19 +115,14 @@ def f_loop_odd_with_powtrace(AX_S: np.ndarray, XD_S: np.ndarray, D_S: np.ndarray
     count = 0
     comb = np.zeros((2, n + 1), dtype=np.complex128)
     comb[0, 0] = 1
-
-    # Use pre-computed powertrace
-    D_S_local = D_S.copy()
-    XD_S_local = XD_S.copy()
-
     for i in range(1, n + 1):
         if i == 1:
             factor = oddloop
         elif i % 2 == 0:
-            factor = powtrace_arr[i // 2] / i + (XD_S_local @ D_S_local) / 2
+            factor = powtrace_arr[i // 2] / i + (XD_S @ D_S) / 2
         else:
-            factor = oddVX_S @ D_S_local
-            D_S_local = AX_S @ D_S_local
+            factor = oddVX_S @ D_S
+            D_S = AX_S @ D_S
 
         powfactor = 1.0
         count = 1 - count
@@ -213,9 +204,7 @@ def _calc_loop_hafnian_batch_gamma_even_optimized(
 
         # OPTIMIZATION 2: Compute powertrace ONCE per j iteration (outside k loop)
         # This was being computed n_D times in the original code!
-        powtrace_len = N_max // 2 + 2
-        powtrace_arr = powertrace(AX_S_copy, powtrace_len)
-
+        powtrace_arr = powertrace(AX_S_copy, N_max // 2 + 1)
         for k in range(n_D):
             XD_S, D_S = get_Dsubmatrices(delta, D[k, :]) # type: ignore
 
@@ -307,8 +296,7 @@ def _calc_loop_hafnian_batch_gamma_odd_optimized(
         AX_S_copy = AX_S.copy()
 
         # OPTIMIZATION 2: Compute powertrace ONCE per j iteration
-        powtrace_len = N_max // 2 + 2
-        powtrace_arr = powertrace(AX_S_copy, powtrace_len)
+        powtrace_arr = powertrace(AX_S_copy, N_max // 2 + 1)
 
         for k in range(n_D):
             XD_S, D_S = get_Dsubmatrices(delta, D[k, :]) # type: ignore
